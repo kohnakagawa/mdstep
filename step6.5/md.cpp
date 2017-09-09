@@ -1,5 +1,6 @@
 //------------------------------------------------------------------------
 #include <iostream>
+#include <iomanip>
 #include <assert.h>
 #include <math.h>
 #include <random>
@@ -26,12 +27,12 @@ MD::makeconf(void) {
   const double density = 0.50;
   const double s = 1.0 / pow(density * 0.25, 1.0 / 3.0);
   const double hs = s * 0.5;
-  double L = (Lx > Ly) ? Ly : Lx;
-  L = (L > Lz) ? Lz : L;
-  const int is = static_cast<int>(L / s);
-  for (int iz = 0; iz < is; iz++) {
-    for (int iy = 0; iy < is; iy++) {
-      for (int ix = 0; ix < is; ix++) {
+  const int isx = static_cast<int>(Lx / s);
+  const int isy = static_cast<int>(Ly / s);
+  const int isz = static_cast<int>(Lz / s);
+  for (int iz = 0; iz < isz; iz++) {
+    for (int iy = 0; iy < isy; iy++) {
+      for (int ix = 0; ix < isx; ix++) {
         vars->add_atoms(ix * s, iy * s, iz * s);
         vars->add_atoms(ix * s + hs, iy * s, iz * s);
         vars->add_atoms(ix * s, iy * s + hs, iz * s);
@@ -254,6 +255,7 @@ MD::run(void) {
   std::cout << "# dt = " << dt << std::endl;
   const int STEPS = 10000;
   const int OBSERVE = 100;
+  std::cout << std::setprecision(15);
   for (int i = 0; i < STEPS; i++) {
     if ( (i % OBSERVE) == 0) {
       std::cout << vars->time << " ";
