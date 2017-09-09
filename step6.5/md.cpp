@@ -26,6 +26,8 @@ MD::makeconf(void) {
   const double density = 0.50;
   const double s = 1.0 / pow(density * 0.25, 1.0 / 3.0);
   const double hs = s * 0.5;
+  double L = (Lx > Ly) ? Ly : Lx;
+  L = (L > Lz) ? Lz : L;
   const int is = static_cast<int>(L / s);
   for (int iz = 0; iz < is; iz++) {
     for (int iy = 0; iy < is; iy++) {
@@ -175,15 +177,15 @@ MD::calculate_force_list(void) {
 void
 MD::periodic(void) {
   for (auto &a : vars->atoms) {
-    if (a.qx < 0.0) a.qx += L;
-    if (a.qy < 0.0) a.qy += L;
-    if (a.qz < 0.0) a.qz += L;
-    if (a.qx > L) a.qx -= L;
-    if (a.qy > L) a.qy -= L;
-    if (a.qz > L) a.qz -= L;
-    assert(a.qx < L);
-    assert(a.qy < L);
-    assert(a.qz < L);
+    if (a.qx < 0.0) a.qx += Lx;
+    if (a.qy < 0.0) a.qy += Ly;
+    if (a.qz < 0.0) a.qz += Lz;
+    if (a.qx > Lx) a.qx -= Lx;
+    if (a.qy > Ly) a.qy -= Ly;
+    if (a.qz > Lz) a.qz -= Lz;
+    assert(a.qx < Lx);
+    assert(a.qy < Ly);
+    assert(a.qz < Lz);
   }
 }
 //------------------------------------------------------------------------
@@ -244,9 +246,9 @@ MD::run(void) {
   mesh->set_number_of_atoms(vars->number_of_atoms());
   mesh->make_pair(vars, pairs);
   const int N = vars->number_of_atoms();
-  const double density = static_cast<double>(N) / L / L / L;
+  const double density = static_cast<double>(N) / Lx / Ly / Lz;
   std::cout << "# N = " << N << std::endl;
-  std::cout << "# L = " << L << std::endl;
+  std::cout << "# L = " << Lx << ", " << Ly << ", " << Lz << std::endl;
   std::cout << "# density = " << density << std::endl;
   std::cout << "# CUTOFF = " << CUTOFF << std::endl;
   std::cout << "# dt = " << dt << std::endl;
@@ -259,7 +261,7 @@ MD::run(void) {
       std::cout << obs->pressure(vars, pairs) << " ";
       std::cout << obs->total_energy(vars, pairs) << " ";
       std::cout << std::endl;
-      obs->local_pressure(vars, pairs);
+      // obs->local_pressure(vars, pairs);
     }
     calculate();
   }

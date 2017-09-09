@@ -7,11 +7,17 @@
 //------------------------------------------------------------------------
 MeshList::MeshList(void) {
   const double SL = CUTOFF + MARGIN;
-  m = static_cast<int>(L / SL) - 1;
-  assert(m > 2);
-  mesh_size = static_cast<double>(L) / m;
-  assert(mesh_size > SL);
-  number_of_mesh = m * m * m;
+  mx = static_cast<int>(Lx / SL) - 1;
+  my = static_cast<int>(Ly / SL) - 1;
+  mz = static_cast<int>(Lz / SL) - 1;
+  assert(mx > 2); assert(my > 2); assert(mz > 2);
+  mesh_size_x = static_cast<double>(Lx) / mx;
+  mesh_size_y = static_cast<double>(Ly) / my;
+  mesh_size_z = static_cast<double>(Lz) / mz;
+  assert(mesh_size_x > SL);
+  assert(mesh_size_y > SL);
+  assert(mesh_size_z > SL);
+  number_of_mesh = mx * my * mz;
   count.resize(number_of_mesh);
   indexes.resize(number_of_mesh);
 }
@@ -27,19 +33,21 @@ MeshList::make_pair(Variables *vars, std::vector<Pair> &pairs) {
   std::fill(count.begin(), count.end(), 0);
   std::fill(pointer.begin(), pointer.end(), 0);
 
-  double im = 1.0 / mesh_size;
+  double imx = 1.0 / mesh_size_x;
+  double imy = 1.0 / mesh_size_y;
+  double imz = 1.0 / mesh_size_z;
   for (int i = 0; i < pn; i++) {
-    int ix = static_cast<int>(atoms[i].qx * im);
-    int iy = static_cast<int>(atoms[i].qy * im);
-    int iz = static_cast<int>(atoms[i].qz * im);
-    if (ix < 0) ix += m;
-    if (ix >= m) ix -= m;
-    if (iy < 0) iy += m;
-    if (iy >= m) iy -= m;
-    if (iz < 0) iz += m;
-    if (iz >= m) iz -= m;
+    int ix = static_cast<int>(atoms[i].qx * imx);
+    int iy = static_cast<int>(atoms[i].qy * imy);
+    int iz = static_cast<int>(atoms[i].qz * imz);
+    if (ix < 0) ix += mx;
+    if (ix >= mx) ix -= mx;
+    if (iy < 0) iy += my;
+    if (iy >= my) iy -= my;
+    if (iz < 0) iz += mz;
+    if (iz >= mz) iz -= mz;
 
-    int index = ix + iy * m + iz * m * m;
+    int index = ix + iy * mx + iz * mx * my;
     assert(index >= 0);
     assert(index < number_of_mesh);
     count[index]++;
@@ -65,13 +73,13 @@ MeshList::make_pair(Variables *vars, std::vector<Pair> &pairs) {
 //------------------------------------------------------------------------
 void
 MeshList::search_other(int id, int ix, int iy, int iz, Variables *vars, std::vector<Pair> &pairs) {
-  if (ix < 0) ix += m;
-  if (ix >= m ) ix -= m;
-  if (iy < 0) iy += m;
-  if (iy >= m ) iy -= m;
-  if (iz < 0) iz += m;
-  if (iz >= m ) iz -= m;
-  int id2 = ix + iy * m + iz * m * m;
+  if (ix < 0) ix += mx;
+  if (ix >= mx ) ix -= mx;
+  if (iy < 0) iy += my;
+  if (iy >= my ) iy -= my;
+  if (iz < 0) iz += mz;
+  if (iz >= mz ) iz -= mz;
+  int id2 = ix + iy * mx + iz * mx * my;
   Atom *atoms = vars->atoms.data();
   for (int k = indexes[id]; k < indexes[id] + count[id]; k++) {
     for (int m = indexes[id2]; m < indexes[id2] + count[id2]; m++) {
@@ -98,9 +106,9 @@ MeshList::search_other(int id, int ix, int iy, int iz, Variables *vars, std::vec
 //------------------------------------------------------------------------
 void
 MeshList::search(int id, Variables *vars, std::vector<Pair> &pairs) {
-  int ix = id % m;
-  int iy = (id / m) % m;
-  int iz = (id / m / m);
+  int ix = id % mx;
+  int iy = (id / mx) % my;
+  int iz = (id / mx / my);
   search_other(id, ix + 1, iy, iz, vars, pairs);
   search_other(id, ix - 1, iy + 1, iz, vars, pairs);
   search_other(id, ix, iy + 1, iz, vars, pairs);

@@ -42,7 +42,7 @@ Observer::potential_energy(Variables *vars, std::vector<Pair> &pairs) {
 double
 Observer::pressure(Variables *vars, std::vector<Pair> &pairs) {
   const double N = static_cast<double>(vars->number_of_atoms());
-  const double V = L * L * L;
+  const double V = Lx * Ly * Lz;
   const double T = temperature(vars);
   double phi = 0.0;
   const int pp = pairs.size();
@@ -67,7 +67,7 @@ Observer::pressure(Variables *vars, std::vector<Pair> &pairs) {
 //------------------------------------------------------------------------
 void
 Observer::local_pressure(Variables *vars, std::vector<Pair> &pairs) {
-  static LS::LSCalculator<double> lscalculator({0.0, 0.0, 0.0}, {L, L, L},
+  static LS::LSCalculator<double> lscalculator({0.0, 0.0, 0.0}, {Lx, Ly, Lz},
                                                LS::BoundaryType::PERIODIC_XYZ,
                                                {20, 20, 20});
   Atom *atoms = vars->atoms.data();

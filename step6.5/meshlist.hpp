@@ -5,8 +5,8 @@
 //------------------------------------------------------------------------
 class MeshList {
 private:
-  double mesh_size;
-  int m;
+  double mesh_size_x, mesh_size_y, mesh_size_z;
+  int mx, my, mz;
   int number_of_mesh;
   std::vector<int> count;
   std::vector<int> indexes;
