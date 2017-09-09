@@ -97,9 +97,11 @@ Observer::local_pressure(Variables *vars, std::vector<Pair> &pairs) {
                                      {-df * dx, -df * dy, -df * dz});
   }
 
-  // show total stress
-  const auto stot = lscalculator.stress_tot();
-  std::cout << "tot_stress = " << (stot.xx + stot.yy + stot.zz) / 3.0 << std::endl;
   lscalculator.nextStep();
+
+  // show total stress
+  const auto ptot = lscalculator.pressure_tot();
+  std::cout << "total pressure = " << (ptot.xx + ptot.yy + ptot.zz) / 3.0 << std::endl;
+  lscalculator.clear();
 }
 //------------------------------------------------------------------------
