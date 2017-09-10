@@ -24,12 +24,14 @@ MD::~MD(void) {
 //------------------------------------------------------------------------
 void
 MD::makeconf(void) {
-  const double density = 0.50;
+  const double density = 0.9;
   const double s = 1.0 / pow(density * 0.25, 1.0 / 3.0);
   const double hs = s * 0.5;
-  const int isx = static_cast<int>(Lx / s);
-  const int isy = static_cast<int>(Ly / s);
-  const int isz = static_cast<int>(Lz / s);
+  double L = (Lx > Ly) ? Ly : Lx;
+  L = (L > Lz) ? Lz : L;
+  const int isx = static_cast<int>(L / s);
+  const int isy = static_cast<int>(L / s);
+  const int isz = static_cast<int>(L / s);
   for (int iz = 0; iz < isz; iz++) {
     for (int iy = 0; iy < isy; iy++) {
       for (int ix = 0; ix < isx; ix++) {
@@ -236,7 +238,7 @@ MD::calculate(void) {
   update_position();
   //velocity_scaling(1.0);
   //langevin(1.0);
-  nosehoover(1.0);
+  nosehoover(0.7);
   periodic();
   vars->time += dt;
 }
@@ -253,8 +255,8 @@ MD::run(void) {
   std::cout << "# density = " << density << std::endl;
   std::cout << "# CUTOFF = " << CUTOFF << std::endl;
   std::cout << "# dt = " << dt << std::endl;
-  const int STEPS = 10000;
-  const int OBSERVE = 100;
+  const int STEPS  = 1000000;
+  const int OBSERVE =   5000;
   std::cout << std::setprecision(15);
   for (int i = 0; i < STEPS; i++) {
     if ( (i % OBSERVE) == 0) {
@@ -263,8 +265,9 @@ MD::run(void) {
       std::cout << obs->pressure(vars, pairs) << " ";
       std::cout << obs->total_energy(vars, pairs) << " ";
       std::cout << std::endl;
-      // obs->local_pressure(vars, pairs);
+      vars->export_xyz();
     }
+    if (i > (STEPS/2)) obs->local_pressure(vars, pairs);
     calculate();
   }
 }

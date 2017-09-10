@@ -69,7 +69,7 @@ void
 Observer::local_pressure(Variables *vars, std::vector<Pair> &pairs) {
   static LS::LSCalculator<double> lscalculator({0.0, 0.0, 0.0}, {Lx, Ly, Lz},
                                                LS::BoundaryType::PERIODIC_XYZ,
-                                               {20, 20, 20});
+                                               {1, 1, 160});
   Atom *atoms = vars->atoms.data();
   // kinetic term
   const int N = vars->number_of_atoms();
@@ -98,10 +98,5 @@ Observer::local_pressure(Variables *vars, std::vector<Pair> &pairs) {
   }
 
   lscalculator.nextStep();
-
-  // show total stress
-  const auto ptot = lscalculator.pressure_tot();
-  std::cout << "total pressure = " << (ptot.xx + ptot.yy + ptot.zz) / 3.0 << std::endl;
-  lscalculator.clear();
 }
 //------------------------------------------------------------------------

@@ -21,6 +21,7 @@ public:
   Variables(void) {time = 0.0; zeta = 0.0;}
   void add_atoms(double x, double y, double v);
   void export_cdview(void);
+  void export_xyz(void);
   int number_of_atoms(void) {return static_cast<int>(atoms.size());}
   void set_initial_velocity(const double);
   void make_neighbor_list(std::vector<Pair> &pair);

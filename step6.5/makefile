@@ -7,9 +7,10 @@ OBJ=$(SRC:.cpp=.o)
 
 INCLUDES = -I../../../
 
-CC=g++
-CPPFLAGS=-std=c++11 -march=native -Wall -Wextra -O3 $(INCLUDES)
-
+# CC=g++
+# CPPFLAGS=-std=c++11 -march=native -Wall -Wextra -O3 $(INCLUDES)
+CC=icpc
+CPPFLAGS=-std=c++11 -xHOST -ipo -Wall -Wextra -O3 $(INCLUDES)
 
 -include makefile.opt
 

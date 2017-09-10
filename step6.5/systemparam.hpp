@@ -1,8 +1,8 @@
 #pragma once
 //------------------------------------------------------------------------
-const double Lx = 50, Ly = 50, Lz = 50;
+const double Lx = 40, Ly = 40, Lz = 80;
 const double dt = 0.005;
-const double CUTOFF = 2.5;
+const double CUTOFF = 3.0;
 const double MARGIN = 0.5;
 const double ML2 = (CUTOFF + MARGIN) * (CUTOFF + MARGIN);
 const double CL2 = (CUTOFF*CUTOFF);

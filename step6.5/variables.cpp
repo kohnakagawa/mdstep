@@ -69,6 +69,18 @@ Variables::export_cdview(void) {
 }
 //------------------------------------------------------------------------
 void
+Variables::export_xyz(void) {
+  static int cnt = 0;
+  static std::ofstream fout("traject.xyz");
+  fout << atoms.size() << "\n";
+  fout << "time = " << cnt << "\n";
+  for (const auto& a : atoms) {
+    fout << "O " << a.qx << " " << a.qy << " " << a.qz << std::endl;
+  }
+  cnt++;
+}
+//------------------------------------------------------------------------
+void
 Variables::make_neighbor_list(std::vector<Pair> &pairs) {
   const int pn = atoms.size();
   const int pp = pairs.size();
