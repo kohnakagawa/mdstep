@@ -94,7 +94,8 @@ Observer::local_pressure(Variables *vars, std::vector<Pair> &pairs) {
     double df = (24.0 * r6 - 48.0) / (r6 * r6 * r2);
     lscalculator.calcLocalStressPot2({atoms[j].qx, atoms[j].qy, atoms[j].qz},
                                      {atoms[i].qx, atoms[i].qy, atoms[i].qz},
-                                     {-df * dx, -df * dy, -df * dz});
+                                     {-df * dx, -df * dy, -df * dz},
+                                     {df * dx, df * dy, df * dz});
   }
 
   lscalculator.nextStep();
