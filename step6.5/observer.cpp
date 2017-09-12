@@ -69,7 +69,8 @@ void
 Observer::local_pressure(Variables *vars) {
   static LS::LSCalculator<double> lscalculator({0.0, 0.0, 0.0}, {Lx, Ly, Lz},
                                                LS::BoundaryType::PERIODIC_XYZ,
-                                               {1, 1, 160});
+                                               {1, 1, 160},
+                                               {"Kinetic", "LJ"});
   Atom *atoms = vars->atoms.data();
   const double mass = 1.0;
 
@@ -78,7 +79,8 @@ Observer::local_pressure(Variables *vars) {
   for (int k = 0; k < N; k++) {
     lscalculator.calcLocalStressKin({atoms[k].qx, atoms[k].qy, atoms[k].qz},
                                     {atoms[k].px, atoms[k].py, atoms[k].pz},
-                                    mass);
+                                    mass,
+                                    0);
   }
 
   // potential term
@@ -106,7 +108,8 @@ Observer::local_pressure(Variables *vars) {
       lscalculator.calcLocalStressPot2NoCheck({qix, qiy, qiz},
                                               {qjx, qjy, qjz},
                                               {df * dx, df * dy, df * dz},
-                                              {-df * dx, -df * dy, -df * dz});
+                                              {-df * dx, -df * dy, -df * dz},
+                                              1);
     }
   }
 
