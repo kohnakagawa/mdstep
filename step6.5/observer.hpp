@@ -8,6 +8,6 @@ public:
   double temperature(Variables *vars) {return kinetic_energy(vars) / 1.5;}
   double pressure(Variables *vars, std::vector<Pair> &pairs);
   double total_energy(Variables *vars, std::vector<Pair> &pairs) {return kinetic_energy(vars) + potential_energy(vars, pairs);}
-  void local_pressure(Variables *vars, std::vector<Pair> &pairs);
+  void local_pressure(Variables *vars);
 };
 //------------------------------------------------------------------------

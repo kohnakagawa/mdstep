@@ -255,8 +255,8 @@ MD::run(void) {
   std::cout << "# density = " << density << std::endl;
   std::cout << "# CUTOFF = " << CUTOFF << std::endl;
   std::cout << "# dt = " << dt << std::endl;
-  const int STEPS  = 1000000;
-  const int OBSERVE =   5000;
+  const int STEPS   = 1000000;
+  const int OBSERVE = 5000;
   std::cout << std::setprecision(15);
   for (int i = 0; i < STEPS; i++) {
     if ( (i % OBSERVE) == 0) {
@@ -267,7 +267,7 @@ MD::run(void) {
       std::cout << std::endl;
       vars->export_xyz();
     }
-    if (i > (STEPS/2)) obs->local_pressure(vars, pairs);
+    if (i > (STEPS/2)) obs->local_pressure(vars);
     calculate();
   }
 }

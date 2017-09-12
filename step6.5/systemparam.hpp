@@ -1,6 +1,6 @@
 #pragma once
 //------------------------------------------------------------------------
-const double Lx = 40, Ly = 40, Lz = 80;
+const double Lx = 30, Ly = 30, Lz = 60;
 const double dt = 0.005;
 const double CUTOFF = 3.0;
 const double MARGIN = 0.5;
