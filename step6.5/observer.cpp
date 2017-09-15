@@ -3,7 +3,19 @@
 #include <assert.h>
 #include "systemparam.hpp"
 #include "observer.hpp"
-#include "ls_calculator.hpp"
+#include <omp.h>
+//------------------------------------------------------------------------
+Observer::Observer() {
+  lscalculators = LS::CalculatorFactory<double>::createOMP(omp_get_max_threads(),
+                                                           {0.0, 0.0, 0.0}, {Lx, Ly, Lz},
+                                                           LS::BoundaryType::PERIODIC_XYZ,
+                                                           {1, 1, 120},
+                                                           {"Kinetic", "LJ"});
+}
+//------------------------------------------------------------------------
+Observer::~Observer() {
+  LS::saveLocalStressDistOMP<double>(lscalculators);
+}
 //------------------------------------------------------------------------
 double Observer::kinetic_energy(Variables *vars) {
   double k = 0;
@@ -67,52 +79,57 @@ Observer::pressure(Variables *vars, std::vector<Pair> &pairs) {
 //------------------------------------------------------------------------
 void
 Observer::local_pressure(Variables *vars) {
-  static LS::LSCalculator<double> lscalculator({0.0, 0.0, 0.0}, {Lx, Ly, Lz},
-                                               LS::BoundaryType::PERIODIC_XYZ,
-                                               {1, 1, 160},
-                                               {"Kinetic", "LJ"});
   Atom *atoms = vars->atoms.data();
   const double mass = 1.0;
-
   // kinetic term
-  const int N = vars->number_of_atoms();
-  for (int k = 0; k < N; k++) {
-    lscalculator.calcLocalStressKin({atoms[k].qx, atoms[k].qy, atoms[k].qz},
-                                    {atoms[k].px, atoms[k].py, atoms[k].pz},
-                                    mass,
-                                    0);
-  }
-
-  // potential term
-  const int *neighbor_list = vars->neighbor_list.data();
-  const int *i_position    = vars->i_position.data();
-  const int *j_count       = vars->j_count.data();
-  for (int i = 0; i < N; i++) {
-    const double qix = atoms[i].qx;
-    const double qiy = atoms[i].qy;
-    const double qiz = atoms[i].qz;
-    const int ip = i_position[i];
-    for (int k = 0; k < j_count[i]; k++) {
-      const int j = neighbor_list[ip + k];
-      const double qjx = atoms[j].qx;
-      const double qjy = atoms[j].qy;
-      const double qjz = atoms[j].qz;
-      double dx = qjx - qix;
-      double dy = qjy - qiy;
-      double dz = qjz - qiz;
-      adjust_periodic(dx, dy, dz);
-      const double r2 = (dx * dx + dy * dy + dz * dz);
-      if (r2 > CL2)continue;
-      const double r6 = r2 * r2 * r2;
-      const double df = (24.0 * r6 - 48.0) / (r6 * r6 * r2);
-      lscalculator.calcLocalStressPot2NoCheck({qix, qiy, qiz},
-                                              {qjx, qjy, qjz},
-                                              {df * dx, df * dy, df * dz},
-                                              {-df * dx, -df * dy, -df * dz},
-                                              1);
+#pragma omp parallel
+  {
+    const auto tid = omp_get_thread_num();
+    const int N = vars->number_of_atoms();
+#pragma omp for nowait
+    for (int k = 0; k < N; k++) {
+      lscalculators[tid]->calcLocalStressKin({atoms[k].qx, atoms[k].qy, atoms[k].qz},
+                                             {atoms[k].px, atoms[k].py, atoms[k].pz},
+                                             mass,
+                                             0);
     }
   }
 
-  lscalculator.nextStep();
+  // potential term
+#pragma omp parallel
+  {
+    const auto tid = omp_get_thread_num();
+    const int N = vars->number_of_atoms();
+    const int *neighbor_list = vars->neighbor_list.data();
+    const int *i_position    = vars->i_position.data();
+    const int *j_count       = vars->j_count.data();
+#pragma omp for nowait
+    for (int i = 0; i < N; i++) {
+      const double qix = atoms[i].qx;
+      const double qiy = atoms[i].qy;
+      const double qiz = atoms[i].qz;
+      const int ip = i_position[i];
+      for (int k = 0; k < j_count[i]; k++) {
+        const int j = neighbor_list[ip + k];
+        const double qjx = atoms[j].qx;
+        const double qjy = atoms[j].qy;
+        const double qjz = atoms[j].qz;
+        double dx = qjx - qix;
+        double dy = qjy - qiy;
+        double dz = qjz - qiz;
+        adjust_periodic(dx, dy, dz);
+        const double r2 = (dx * dx + dy * dy + dz * dz);
+        if (r2 > CL2)continue;
+        const double r6 = r2 * r2 * r2;
+        const double df = (24.0 * r6 - 48.0) / (r6 * r6 * r2);
+        lscalculators[tid]->calcLocalStressPot2NoCheck({qix, qiy, qiz},
+                                                       {qjx, qjy, qjz},
+                                                       {df * dx, df * dy, df * dz},
+                                                       {-df * dx, -df * dy, -df * dz},
+                                                       1);
+      }
+    }
+    lscalculators[tid]->nextStep();
+  }
 }
 //------------------------------------------------------------------------

@@ -238,14 +238,14 @@ MD::calculate(void) {
   update_position();
   //velocity_scaling(1.0);
   //langevin(1.0);
-  nosehoover(0.7);
+  // nosehoover(0.7);
   periodic();
   vars->time += dt;
 }
 //------------------------------------------------------------------------
 void
 MD::run(void) {
-  makeconf();
+  if (!vars->import_conf()) makeconf();
   mesh->set_number_of_atoms(vars->number_of_atoms());
   mesh->make_pair(vars, pairs);
   const int N = vars->number_of_atoms();
@@ -255,8 +255,8 @@ MD::run(void) {
   std::cout << "# density = " << density << std::endl;
   std::cout << "# CUTOFF = " << CUTOFF << std::endl;
   std::cout << "# dt = " << dt << std::endl;
-  const int STEPS   = 1000000;
-  const int OBSERVE = 5000;
+  const int STEPS   = 100000;
+  const int OBSERVE = 100;
   std::cout << std::setprecision(15);
   for (int i = 0; i < STEPS; i++) {
     if ( (i % OBSERVE) == 0) {
@@ -267,8 +267,9 @@ MD::run(void) {
       std::cout << std::endl;
       vars->export_xyz();
     }
-    if (i > (STEPS/2)) obs->local_pressure(vars);
+    obs->local_pressure(vars);
     calculate();
   }
+  vars->export_conf();
 }
 //------------------------------------------------------------------------

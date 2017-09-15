@@ -8,7 +8,7 @@ OBJ=$(SRC:.cpp=.o)
 INCLUDES = -I../../../
 
 CC=g++
-CPPFLAGS=-std=c++11 -march=native -Wall -Wextra -O3 $(INCLUDES)
+CPPFLAGS=-std=c++11 -march=native -Wall -Wextra -fopenmp -O3 $(INCLUDES)
 
 -include makefile.opt
 

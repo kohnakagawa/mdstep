@@ -80,6 +80,27 @@ Variables::export_xyz(void) {
   cnt++;
 }
 //------------------------------------------------------------------------
+bool
+Variables::import_conf(void) {
+  std::ifstream fin("init_config.bin", std::ios::binary | std::ios::ate);
+  const std::size_t fsize = fin.tellg();
+  if ((fsize == 0) || ((fsize % sizeof(Atom)) != 0)) return false;
+
+  fin.seekg(std::ios::beg);
+  const int num_atoms = fsize / sizeof(Atom);
+  atoms.resize(num_atoms);
+  fin.read(reinterpret_cast<char*>(&atoms[0].qx),
+           atoms.size() * sizeof(Atom));
+  return true;
+}
+//------------------------------------------------------------------------
+void
+Variables::export_conf(void) {
+  std::ofstream fout("fin_config.bin", std::ios::binary);
+  fout.write(reinterpret_cast<const char*>(&atoms[0].qx),
+             atoms.size() * sizeof(Atom));
+}
+//------------------------------------------------------------------------
 void
 Variables::make_neighbor_list(std::vector<Pair> &pairs) {
   const int pn = atoms.size();
