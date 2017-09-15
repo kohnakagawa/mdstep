@@ -14,7 +14,7 @@ Observer::Observer() {
 }
 //------------------------------------------------------------------------
 Observer::~Observer() {
-  LS::saveLocalStressDistOMP<double>(lscalculators);
+  LS::LSHelpers<double>::saveLocalStressDistOMP(lscalculators);
 }
 //------------------------------------------------------------------------
 double Observer::kinetic_energy(Variables *vars) {
@@ -131,5 +131,7 @@ Observer::local_pressure(Variables *vars) {
     }
     lscalculators[tid]->nextStep();
   }
+
+  LS::LSHelpers<double>::showPressureTotalOMP(lscalculators);
 }
 //------------------------------------------------------------------------
