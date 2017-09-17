@@ -112,7 +112,5 @@ Observer::local_pressure(Variables *vars) {
     }
   }
   lscalculator->nextStep();
-  std::cout << "pressure tot = " << lscalculator->pressure_tot().trace() / 3.0 << std::endl;
-  lscalculator->clear();
 }
 //------------------------------------------------------------------------
