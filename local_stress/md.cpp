@@ -255,8 +255,8 @@ MD::run(void) {
   std::cout << "# density = " << density << std::endl;
   std::cout << "# CUTOFF = " << CUTOFF << std::endl;
   std::cout << "# dt = " << dt << std::endl;
-  const int STEPS   = 100000;
-  const int OBSERVE = 100;
+  const int STEPS   = 10;
+  const int OBSERVE = 1;
   std::cout << std::setprecision(15);
   for (int i = 0; i < STEPS; i++) {
     if ( (i % OBSERVE) == 0) {

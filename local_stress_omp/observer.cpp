@@ -9,7 +9,7 @@ Observer::Observer() {
   lscalculators = LS::CalculatorFactory<double>::createOMP(omp_get_max_threads(),
                                                            {0.0, 0.0, 0.0}, {Lx, Ly, Lz},
                                                            LS::BoundaryType::PERIODIC_XYZ,
-                                                           {1, 1, 120},
+                                                           {1, 1, 240},
                                                            {"Kinetic", "LJ"});
 }
 //------------------------------------------------------------------------
@@ -81,9 +81,10 @@ void
 Observer::local_pressure(Variables *vars) {
   Atom *atoms = vars->atoms.data();
   const double mass = 1.0;
-  // kinetic term
+
 #pragma omp parallel
   {
+    // kinetic term
     const auto tid = omp_get_thread_num();
     const int N = vars->number_of_atoms();
 #pragma omp for nowait
@@ -93,13 +94,8 @@ Observer::local_pressure(Variables *vars) {
                                              mass,
                                              0);
     }
-  }
 
-  // potential term
-#pragma omp parallel
-  {
-    const auto tid = omp_get_thread_num();
-    const int N = vars->number_of_atoms();
+    // potential term
     const int *neighbor_list = vars->neighbor_list.data();
     const int *i_position    = vars->i_position.data();
     const int *j_count       = vars->j_count.data();
@@ -131,7 +127,5 @@ Observer::local_pressure(Variables *vars) {
     }
     lscalculators[tid]->nextStep();
   }
-
-  LS::LSHelpers<double>::showPressureTotalOMP(lscalculators);
 }
 //------------------------------------------------------------------------
