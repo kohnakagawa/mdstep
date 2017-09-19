@@ -5,7 +5,7 @@ SRC=$(shell ls *.cpp)
 HED=$(shell ls *.hpp)
 OBJ=$(SRC:.cpp=.o)
 
-INCLUDES = -I../../../
+INCLUDES = -I../../../../ -I../../../
 
 CC=g++
 CPPFLAGS=-std=c++11 -march=native -Wall -Wextra -fopenmp -O3 $(INCLUDES)

@@ -1,6 +1,6 @@
 #pragma once
 #include "variables.hpp"
-#include "ls_calculator.hpp"
+#include "MDLSC/ls_calculator.hpp"
 //------------------------------------------------------------------------
 class Observer {
 public:
