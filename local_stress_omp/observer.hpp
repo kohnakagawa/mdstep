@@ -1,6 +1,6 @@
 #pragma once
 #include "variables.hpp"
-#include "MDLSC/ls_calculator.hpp"
+#include "LSCMD/ls_calculator.hpp"
 //------------------------------------------------------------------------
 class Observer {
   std::vector<std::unique_ptr<LS::LSCalculator<double>>> lscalculators;
